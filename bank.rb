@@ -6,16 +6,15 @@ class Bank
   def rely
     user.cash -= 10
     dealeer.cash -= 10
-    @bank +=20
+    @bank += 20
   end
 
   def give_bank(winner)
     if winner
       winner.cash += @Bank
     else
-      user,cash += @bank / 2
+      user.cash += @bank / 2
       dealer.cash += @bank / 2
     end
   end
 end
-    
