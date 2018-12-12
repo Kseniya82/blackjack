@@ -1,12 +1,13 @@
+require_relative 'messages'
 module UserMenu
-
+  include Messages
   USER_MENU = [
     { handler: :user_pass_course, title: 'Пропустить ход' },
     { handler: :user_give_card, title: 'Взять карту' },
-    { handler: :open_cards?, title: 'Открыть карты' }
+    { handler: :user_open_cards, title: 'Открыть карты' }
   ].freeze
 
-  ERROR_CHOICE = 'Неверный выбор'
+  ERROR_CHOICE = 'Неверный выбор'.freeze
 
   def user_course
     show_menu_items(USER_MENU)
@@ -26,16 +27,20 @@ module UserMenu
   end
 
   def user_pass_course
-    show_pass_course(self)
+    show_pass_course(@user)
     dealer_course
   end
 
   def user_give_card
-    give_card(self) if self.cards.size < 3
+    @deck.give_card(@user.hand) if @user.hand.cards.size < 3
   end
 
-  def open_cards?
-    true
+  def user_open_cards
+    @user_open_cards = true
+    open_cards
   end
 
+  def new_game?
+    false
+  end
 end

@@ -1,12 +1,10 @@
 require_relative 'user_menu'
 class User
   include UserMenu
-
-  attr_accessor :cards
-
+  attr_accessor :hand, :cash
+  attr_reader :name
   def initialize(name)
-    @name = name.capitalize!
-    @cash = 100
-    @cards = []
+    @name = name
+    @name.capitalize!
   end
 end
