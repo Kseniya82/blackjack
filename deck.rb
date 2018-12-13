@@ -11,18 +11,15 @@ class Deck
   end
 
   def mix_deck
-    @play_deck = @deck.shuffle!
+    @deck.shuffle!
   end
 
-  def distribute_cards(hand1, hand2)
-    hand1.cards = @play_deck.first(2)
-    @play_deck = @play_deck.drop(2)
-    hand2.cards = @play_deck.first(2)
-    @play_deck = @play_deck.drop(2)
+  def distribute_cards(player, dealer)
+    player.hand.cards = @deck.shift(2)
+    dealer.hand.cards = @deck.shift(2)
   end
 
-  def give_card(hand)
-    hand.cards << @play_deck.first
-    @play_deck.drop(1)
+  def deal_card
+    @deck.shift
   end
 end

@@ -1,95 +1,90 @@
-require_relative 'user'
+require_relative 'player'
 require_relative 'dealer'
 require_relative 'deck'
-require_relative 'hand'
 require_relative 'bank'
 require_relative 'interface'
 class Game
-
-  attr_reader :user, :dealer, :winner
+  attr_reader :player, :dealer, :deck
 
   def initialize
     @interface = Interface.new
     @dealer = Dealer.new
-    @hand1 = Hand.new
-    @hand2 = Hand.new
-    @dealer.hand = @hand2
     @bank = Bank.new
-    @deck = Deck.new
   end
 
   def run
-    create_user
+    create_player
     give_money
     new_game
   end
 
   private
 
-  def create_user
+  def create_player
     @interface.ask_name
     name = @interface.receive_name
-    @user = User.new(name)
-    @user.hand = @hand1
+    @player = Player.new(name)
   end
 
   def new_game
     loop do
+      @deck = Deck.new
       @deck.mix_deck
-      @deck.distribute_cards(@hand1, @hand2)
+      @deck.distribute_cards(@player, @dealer)
       rely
+      @player_open_cards = false
       game_party
       result
       break unless new_game?
+
       give_money if bank_empty?
     end
   end
 
   def give_money
-    @user.cash = 100
+    @player.cash = 100
     @dealer.cash = 100
-    @user_open_cards = false
   end
 
   def game_party
     loop do
       break if bank_empty?
-      @interface.show_cards(@hand1, @hand2)
-      user_course
-      break if @user_open_cards
+
+      @interface.show_cards(@player, @dealer)
+      player_course
+      break if @player_open_cards
 
       dealer_course
       break if open_cards?
     end
   end
 
-  def user_course
+  def player_course
     @interface.show_menu
     choice = @interface.receive_choice
     selected_item = Interface::USER_MENU[choice - 1]
     send(selected_item[:handler]) if selected_item
   end
 
-  def user_pass_course
-    @interface.show_pass_course(@user)
-    dealer_course
+  def player_pass_course
+    @interface.show_pass_course(@player)
   end
 
-  def user_give_card
-    if @user.hand.cards.size < 3
-      @deck.give_card(@user.hand)
-      @interface.show_give_card(@user)
+  def player_give_card
+    if @player.hand.cards.size < 3
+      @player.take_card(@deck)
+      @interface.show_give_card(@player)
     end
   end
 
-  def user_open_cards
-    @user_open_cards = true
+  def player_open_cards
+    @player_open_cards = true
     open_cards
   end
 
   def dealer_course
-    if @hand2.counting_points < 17 && @hand2.cards.size < 3
-      @deck.give_card(@hand2)
+    if @dealer.points < 17 && @dealer.hand.cards.size < 3
+      @dealer.take_card(@deck)
       @interface.show_give_card(@dealer)
     else
       dealer_pass_course
@@ -98,22 +93,23 @@ class Game
 
   def dealer_pass_course
     @interface.show_pass_course(@dealer)
-    user_course
+    player_course
   end
 
   def result
     show_winner_by_bank if bank_empty?
     return if bank_empty?
-    open_cards unless @user_open_cards
-    @bank.give_bank(winner, @user, @dealer)
+
+    open_cards unless @player_open_cards
+    @bank.give_bank(winner, @player, @dealer)
   end
 
   def rely
-    @bank.rely(@user, @dealer) unless benk_empty?
+    @bank.rely(@player, @dealer) unless bank_empty?
   end
 
   def bank_empty?
-    if @user.cash < 10 || @dealer.cash < 10
+    if @player.cash < 10 || @dealer.cash < 10
       true
     else
       false
@@ -129,15 +125,15 @@ class Game
   end
 
   def winner_by_bank
-    if @user.cash > @dealer.cash && @user.cash > 10
-      @user
-    elsif @dealer.cash > @user.cash && @dealer.cash > 10
+    if @player.cash > @dealer.cash && @player.cash > 10
+      @player
+    elsif @dealer.cash > @player.cash && @dealer.cash > 10
       @dealer
     end
   end
 
   def open_cards?
-    if @hand1.cards.size >= 3 && @hand2.cards.size >= 3 || @@user_open_cards
+    if @player.hand.cards.size >= 3 && dealer.hand.cards.size >= 3 || @player_open_cards
       true
     else
       false
@@ -145,7 +141,7 @@ class Game
   end
 
   def open_cards
-    @interface.show_open_cards(@hand1, @hand2)
+    @interface.show_open_cards(@player, @dealer)
     if winner
       @interface.show_winner(winner)
     else
@@ -156,20 +152,14 @@ class Game
   def new_game?
     @interface.ask_new_game
     choice = @interface.receive_choice
-    if choice == 1
-      true
-    else
-      false
-    end
+    choice == 1
   end
 
   def winner
-    user_points = @hand1.counting_points
-    dealer_points = @hand2.counting_points
-      if (user_points > dealer_points || dealer_points >= 21) && user_points < 21
-        @user
-      elsif (dealer_points > user_points || user_points >= 21) && dealer_points < 21
-        @dealer
-      end
+    if (@player.points > @dealer.points || @dealer.points >= 21) && @player.points < 21
+      @player
+    elsif (@dealer.points > @player.points || @player.points >= 21) && @dealer.points < 21
+      @dealer
+    end
   end
 end

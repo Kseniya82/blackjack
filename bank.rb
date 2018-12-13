@@ -3,13 +3,13 @@ class Bank
     @bank = 0
   end
 
-  def rely (user, dealer)
+  def rely(user, dealer)
     user.cash -= 10
     dealer.cash -= 10
     @bank += 20
   end
 
-  def give_bank(winner,user,dealer)
+  def give_bank(winner, user, dealer)
     if winner
       winner.cash += @bank
       @bank = 0

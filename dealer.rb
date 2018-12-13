@@ -1,4 +1,6 @@
-class Dealer
-  attr_accessor :hand, :cash
-  attr_reader :deck
+require_relative 'player'
+class Dealer < Player
+  def initialize(name = 'dealer')
+    super
+  end
 end

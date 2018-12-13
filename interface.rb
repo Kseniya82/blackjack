@@ -1,11 +1,9 @@
 class Interface
   USER_MENU = [
-    { handler: :user_pass_course, title: 'Пропустить ход' },
-    { handler: :user_give_card, title: 'Взять карту' },
-    { handler: :user_open_cards, title: 'Открыть карты' }
+    { handler: :player_pass_course, title: 'Пропустить ход' },
+    { handler: :player_give_card, title: 'Взять карту' },
+    { handler: :player_open_cards, title: 'Открыть карты' }
   ].freeze
-
-  ERROR_CHOICE = 'Неверный выбор'.freeze
 
   def ask_name
     puts 'Вееедите Ваше имя'
@@ -29,44 +27,43 @@ class Interface
   end
 
   def show_pass_course(player)
-    puts "#{player.class} пропускает ход"
+    puts "#{player.name} пропускает ход"
   end
 
-  def show_cards(hand1, hand2)
+  def show_cards(player, dealer)
     puts 'Кврты игрока'
-    hand1.cards.each { |card| print "#{card.rank + card.siute} " }
+    player.hand.cards.each { |card| print "#{card.rank + card.siute} " }
     puts ''
-    puts "Кол-во очков #{hand1.counting_points}"
+    puts "Кол-во очков #{player.points}"
     puts 'Карты дилера'
-    hand2.cards.each { |_card| print '* ' }
+    dealer.hand.cards.each { |_card| print '* ' }
     puts ''
   end
 
-  def show_open_cards(hand1, hand2)
+  def show_open_cards(player, dealer)
     puts 'Кврты игрока'
-    hand1.cards.each { |card| print "#{card.rank + card.siute} " }
+    player.hand.cards.each { |card| print "#{card.rank + card.siute} " }
     puts ''
-    puts "Кол-во очков #{hand1.counting_points}"
+    puts "Кол-во очков #{player.points}"
     puts 'Карты дилера'
-    hand2.cards.each { |card| print "#{card.rank + card.siute} " }
+    dealer.hand.cards.each { |card| print "#{card.rank + card.siute} " }
     puts ''
-    puts "Кол-во очков #{hand2.counting_points}"
+    puts "Кол-во очков #{dealer.points}"
   end
 
   def show_give_card(player)
-    puts "#{player.class} берет карту"
+    puts "#{player.name} берет карту"
   end
 
   def show_winner(winner)
-    puts "Победитель #{winner.class}"
+    puts "Победитель #{winner.name}"
   end
 
- def show_draw
-   puts 'Ничья'
- end
+  def show_draw
+    puts 'Ничья'
+  end
 
- def ask_new_game
-   puts 'Введите 1, если хотите начать новую игру, 0 для отмены'
- end
-
+  def ask_new_game
+    puts 'Введите 1, если хотите начать новую игру, 0 для отмены'
+  end
 end
