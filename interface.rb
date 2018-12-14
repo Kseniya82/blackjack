@@ -1,9 +1,4 @@
 class Interface
-  USER_MENU = [
-    { handler: :player_pass_course, title: 'Пропустить ход' },
-    { handler: :player_give_card, title: 'Взять карту' },
-    { handler: :player_open_cards, title: 'Открыть карты' }
-  ].freeze
 
   def ask_name
     puts 'Вееедите Ваше имя'
@@ -13,10 +8,10 @@ class Interface
     gets.chomp
   end
 
-  def show_menu
+  def show_menu(menu)
     puts 'Выберите пункт меню или 0 для выхода'
     index = 1
-    USER_MENU.each do |menu_item|
+    menu.each do |menu_item|
       puts "#{index} - #{menu_item[:title]}"
       index += 1
     end

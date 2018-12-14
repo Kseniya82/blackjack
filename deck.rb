@@ -1,5 +1,6 @@
 require_relative 'card'
 require_relative 'hand'
+
 class Deck
   def initialize
     @deck = []
@@ -12,11 +13,6 @@ class Deck
 
   def mix_deck
     @deck.shuffle!
-  end
-
-  def distribute_cards(player, dealer)
-    player.hand.cards = @deck.shift(2)
-    dealer.hand.cards = @deck.shift(2)
   end
 
   def deal_card

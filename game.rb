@@ -3,7 +3,15 @@ require_relative 'dealer'
 require_relative 'deck'
 require_relative 'bank'
 require_relative 'interface'
+
 class Game
+  INITIAL_CASH = 100
+  USER_MENU = [
+    { handler: :player_pass_course, title: 'Пропустить ход' },
+    { handler: :player_give_card, title: 'Взять карту' },
+    { handler: :player_open_cards, title: 'Открыть карты' }
+  ].freeze
+
   attr_reader :player, :dealer, :deck
 
   def initialize
@@ -30,7 +38,7 @@ class Game
     loop do
       @deck = Deck.new
       @deck.mix_deck
-      @deck.distribute_cards(@player, @dealer)
+      init_deal
       rely
       @player_open_cards = false
       game_party
@@ -41,9 +49,18 @@ class Game
     end
   end
 
+  def init_deal
+    @player.hand.cards = []
+    @dealer.hand.cards = []
+    2.times do
+      @player.take_card(@deck)
+      @dealer.take_card(@deck)
+    end
+  end
+
   def give_money
-    @player.cash = 100
-    @dealer.cash = 100
+    @player.cash = INITIAL_CASH
+    @dealer.cash = INITIAL_CASH
   end
 
   def game_party
@@ -60,9 +77,9 @@ class Game
   end
 
   def player_course
-    @interface.show_menu
+    @interface.show_menu(USER_MENU)
     choice = @interface.receive_choice
-    selected_item = Interface::USER_MENU[choice - 1]
+    selected_item = USER_MENU[choice - 1]
     send(selected_item[:handler]) if selected_item
   end
 
@@ -71,7 +88,7 @@ class Game
   end
 
   def player_give_card
-    if @player.hand.cards.size < 3
+    unless @dealer.max_cards?
       @player.take_card(@deck)
       @interface.show_give_card(@player)
     end
@@ -83,7 +100,7 @@ class Game
   end
 
   def dealer_course
-    if @dealer.points < 17 && @dealer.hand.cards.size < 3
+    if @dealer.will_take_card? && !@dealer.max_cards?
       @dealer.take_card(@deck)
       @interface.show_give_card(@dealer)
     else
@@ -101,7 +118,11 @@ class Game
     return if bank_empty?
 
     open_cards unless @player_open_cards
-    @bank.give_bank(winner, @player, @dealer)
+    if winner
+      @bank.give_bank(winner)
+    else
+      @bank.refund(@player, @dealer)
+    end
   end
 
   def rely
@@ -109,11 +130,7 @@ class Game
   end
 
   def bank_empty?
-    if @player.cash < 10 || @dealer.cash < 10
-      true
-    else
-      false
-    end
+    @player.cash < Bank::BET_SIZE || @dealer.cash < Bank::BET_SIZE
   end
 
   def show_winner_by_bank
@@ -125,19 +142,15 @@ class Game
   end
 
   def winner_by_bank
-    if @player.cash > @dealer.cash && @player.cash > 10
+    if @player.cash > @dealer.cash && @player.cash > Bank::BET_SIZE
       @player
-    elsif @dealer.cash > @player.cash && @dealer.cash > 10
+    elsif @dealer.cash > @player.cash && @dealer.cash > Bank::BET_SIZE
       @dealer
     end
   end
 
   def open_cards?
-    if @player.hand.cards.size >= 3 && dealer.hand.cards.size >= 3 || @player_open_cards
-      true
-    else
-      false
-    end
+    @player.max_cards? && @dealer.max_cards? || @player_open_cards
   end
 
   def open_cards
@@ -156,9 +169,9 @@ class Game
   end
 
   def winner
-    if (@player.points > @dealer.points || @dealer.points >= 21) && @player.points < 21
+    if (@player.points > @dealer.points || @dealer.points > Hand::MAX_POINTS) && @player.points <= Hand::MAX_POINTS
       @player
-    elsif (@dealer.points > @player.points || @player.points >= 21) && @dealer.points < 21
+    elsif (@dealer.points > @player.points || @player.points > Hand::MAX_POINTS) && @dealer.points <= Hand::MAX_POINTS
       @dealer
     end
   end
