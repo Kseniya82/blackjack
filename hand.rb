@@ -1,24 +1,30 @@
 class Hand
   MAX_SIZE = 3
   MAX_POINTS = 21
-  
+
   attr_accessor :cards
 
+  def initialize
+    @cards = []
+  end
+
   def points
-    @points = []
-    cards.each { |card| @points << card.point }
+    card_points = cards.map(&:point).sum
+    return card_points unless card_points > MAX_POINTS
+    ace_correction(card_points)
+    cards.map(&:point).sum
   end
 
-  def counting_points
-    points
-    change_ace_point if @points.sum > MAX_POINTS
-    @points.sum
-  end
+  private
 
-  def change_ace_point
+  def ace_correction(current_points)
+    correction = Card::ACE_MAX_VALUE - Card::ACE_MIN_VALUE
+    corrected_value = current_points
     cards.each do |card|
-      points
-      card.point = 1 if card.rank == 'A' && @points.sum >MAX_POINTS
+      if card.ace? && corrected_value > MAX_POINTS
+        card.point = Card::ACE_MIN_VALUE
+        corrected_value -= correction
+      end
     end
   end
 end

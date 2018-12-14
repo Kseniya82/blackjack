@@ -1,5 +1,4 @@
 class Bank
-
   BET_SIZE = 10
 
   def initialize
@@ -17,9 +16,9 @@ class Bank
     @bank = 0
   end
 
-  def refund(user,dealer)
+  def refund(user, dealer)
     user.cash += @bank / 2
     dealer.cash += @bank / 2
-    @banl = 0
+    @bank = 0
   end
 end

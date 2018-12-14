@@ -50,8 +50,8 @@ class Game
   end
 
   def init_deal
-    @player.hand.cards = []
-    @dealer.hand.cards = []
+    @player.fold_cards
+    @dealer.fold_cards
     2.times do
       @player.take_card(@deck)
       @dealer.take_card(@deck)
@@ -88,7 +88,7 @@ class Game
   end
 
   def player_give_card
-    unless @dealer.max_cards?
+    unless @player.max_cards?
       @player.take_card(@deck)
       @interface.show_give_card(@player)
     end
@@ -110,7 +110,6 @@ class Game
 
   def dealer_pass_course
     @interface.show_pass_course(@dealer)
-    player_course
   end
 
   def result
@@ -118,8 +117,8 @@ class Game
     return if bank_empty?
 
     open_cards unless @player_open_cards
-    if winner
-      @bank.give_bank(winner)
+    if @winner
+      @bank.give_bank(@winner)
     else
       @bank.refund(@player, @dealer)
     end
@@ -155,8 +154,9 @@ class Game
 
   def open_cards
     @interface.show_open_cards(@player, @dealer)
-    if winner
-      @interface.show_winner(winner)
+    @winner = define_winner
+    if @winner
+      @interface.show_winner(@winner)
     else
       @interface.show_draw
     end
@@ -168,11 +168,11 @@ class Game
     choice == 1
   end
 
-  def winner
-    if (@player.points > @dealer.points || @dealer.points > Hand::MAX_POINTS) && @player.points <= Hand::MAX_POINTS
-      @player
-    elsif (@dealer.points > @player.points || @player.points > Hand::MAX_POINTS) && @dealer.points <= Hand::MAX_POINTS
-      @dealer
-    end
+  def define_winner
+    return if @dealer.points > Hand::MAX_POINTS && @player.points > Hand::MAX_POINTS
+    return if @dealer.points == @player.points
+    return @player if @dealer.points > Hand::MAX_POINTS
+    return @dealer if @player.points > Hand::MAX_POINTS
+    [@player, @dealer].max_by(&:points)
   end
 end

@@ -8,7 +8,6 @@ class Player
     @name = name
     @name.capitalize!
     @hand = Hand.new
-    @hand.cards = []
   end
 
   def take_card(deck)
@@ -16,11 +15,14 @@ class Player
   end
 
   def points
-    @hand.counting_points
+    @hand.points
   end
 
   def max_cards?
     hand.cards.size >= Hand::MAX_SIZE
   end
 
+  def fold_cards
+    @hand.cards = []
+  end
 end
