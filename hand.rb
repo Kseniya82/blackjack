@@ -9,21 +9,17 @@ class Hand
   end
 
   def points
-    card_points = cards.map(&:point).sum
-    return card_points unless card_points > MAX_POINTS
-    ace_correction(card_points)
+    ace_correction if cards.find(&:ace?)
     cards.map(&:point).sum
   end
 
   private
 
-  def ace_correction(current_points)
-    correction = Card::ACE_MAX_VALUE - Card::ACE_MIN_VALUE
-    corrected_value = current_points
-    cards.each do |card|
-      if card.ace? && corrected_value > MAX_POINTS
+  def ace_correction
+    return unless cards.map(&:point).sum > MAX_POINTS
+    cards.select(&:ace?).each do |card|
+      if cards.map(&:point).sum > MAX_POINTS
         card.point = Card::ACE_MIN_VALUE
-        corrected_value -= correction
       end
     end
   end

@@ -1,7 +1,7 @@
 class Interface
 
   def ask_name
-    puts 'Вееедите Ваше имя'
+    puts 'Введите Ваше имя'
   end
 
   def receive_name
@@ -60,5 +60,10 @@ class Interface
 
   def ask_new_game
     puts 'Введите 1, если хотите начать новую игру, 0 для отмены'
+  end
+
+  def show_cash(player, dealer)
+    puts "Состояние игрока #{player.name}: #{player.cash}"
+    puts "Состояние дилера: #{dealer.cash}"
   end
 end

@@ -5,8 +5,8 @@ class Bank
     @bank = 0
   end
 
-  def rely(user, dealer)
-    user.cash -= BET_SIZE
+  def rely(player, dealer)
+    player.cash -= BET_SIZE
     dealer.cash -= BET_SIZE
     @bank += BET_SIZE * 2
   end
@@ -16,8 +16,8 @@ class Bank
     @bank = 0
   end
 
-  def refund(user, dealer)
-    user.cash += @bank / 2
+  def refund(player, dealer)
+    player.cash += @bank / 2
     dealer.cash += @bank / 2
     @bank = 0
   end

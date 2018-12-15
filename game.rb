@@ -37,21 +37,24 @@ class Game
   def new_game
     loop do
       @deck = Deck.new
-      @deck.mix_deck
+      set_default_state
       init_deal
+      give_money if bank_empty?
       rely
-      @player_open_cards = false
+      @interface.show_cash(@player, @dealer)
       game_party
       result
       break unless new_game?
-
-      give_money if bank_empty?
     end
   end
 
-  def init_deal
+  def set_default_state
+    @player_open_cards = false
     @player.fold_cards
     @dealer.fold_cards
+  end
+
+  def init_deal
     2.times do
       @player.take_card(@deck)
       @dealer.take_card(@deck)
@@ -122,6 +125,7 @@ class Game
     else
       @bank.refund(@player, @dealer)
     end
+    @interface.show_cash(@player, @dealer)
   end
 
   def rely
