@@ -120,10 +120,14 @@ class Game
     return if bank_empty?
 
     open_cards unless @player_open_cards
-    if @winner
-      @bank.give_bank(@winner)
+
+    winner = define_winner
+    if winner
+      @bank.give_bank(winner)
+      @interface.show_winner(winner)
     else
       @bank.refund(@player, @dealer)
+      @interface.show_draw
     end
     @interface.show_cash(@player, @dealer)
   end
@@ -158,12 +162,6 @@ class Game
 
   def open_cards
     @interface.show_open_cards(@player, @dealer)
-    @winner = define_winner
-    if @winner
-      @interface.show_winner(@winner)
-    else
-      @interface.show_draw
-    end
   end
 
   def new_game?
